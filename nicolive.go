@@ -1,7 +1,9 @@
 package nicolive
 
 import (
+	"encoding/xml"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
@@ -36,4 +38,70 @@ func New(mail, password string) (*Nicolive, error) {
 	}
 
 	return &Nicolive{client}, nil
+}
+
+func (n *Nicolive) Listen(liveID string) error {
+	g, err := n.getPlayerStatus(liveID)
+	if err != nil {
+		return err
+	}
+
+	printPlayerstatus(g)
+
+	return nil
+}
+
+func (n *Nicolive) getPlayerStatus(liveID string) (*getplayerstatus, error) {
+	url := fmt.Sprintf("https://live.nicovideo.jp/api/getplayerstatus/%s", liveID)
+	resp, err := n.client.Get(url)
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var g getplayerstatus
+	err = xml.Unmarshal(b, &g)
+	if err != nil {
+		return nil, err
+	}
+	if g.Error.Code.Text != "" {
+		err = fmt.Errorf("an error occurred: %s", g.Error.Code.Text)
+		return nil, err
+	}
+	if g.Status != "ok" {
+		err = fmt.Errorf("unknown error occurred:\n%s", string(b))
+		return nil, err
+	}
+
+	return &g, nil
+}
+
+func printPlayerstatus(g *getplayerstatus) {
+	fmt.Println("Time:", g.Time)
+	fmt.Println("LiveID:", g.Stream.ID)
+	fmt.Println("Title:", g.Stream.Title)
+	fmt.Println("Description:", g.Stream.Description)
+	fmt.Println("ProviderType:", g.Stream.ProviderType)
+	fmt.Println("WatchCount:", g.Stream.WatchCount)
+	fmt.Println("CommentCount:", g.Stream.CommentCount)
+	fmt.Println("StartTime:", g.Stream.StartTime)
+	fmt.Println("EndTime:", g.Stream.EndTime)
+	fmt.Println("UserID:", g.User.UserID)
+	fmt.Println("Nickname:", g.User.Nickname)
+	fmt.Println("IsPremium:", g.User.IsPremium)
+	fmt.Println("UserAge:", g.User.UserAge)
+	fmt.Println("UserSex:", g.User.UserSex)
+	fmt.Println("UserDomain:", g.User.UserDomain)
+	fmt.Println("UserPrefecture:", g.User.UserPrefecture)
+	fmt.Println("UserLanguage:", g.User.UserLanguage)
+	fmt.Println("RoomLabel:", g.User.RoomLabel)
+	fmt.Println("RoomSeetno:", g.User.RoomSeetno)
+	fmt.Println("Addr:", g.Ms.Addr)
+	fmt.Println("Port:", g.Ms.Port)
+	fmt.Println("Thread:", g.Ms.Thread)
 }
