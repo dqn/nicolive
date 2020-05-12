@@ -176,3 +176,37 @@ type marquee struct {
 	GameTime         string `xml:"game_time"`
 	ForceNicowariOff string `xml:"force_nicowari_off"`
 }
+
+type thread struct {
+	XMLName    xml.Name `xml:"thread"`
+	Text       string   `xml:",chardata"`
+	Resultcode string   `xml:"resultcode,attr"`
+	Thread     string   `xml:"thread,attr"`
+	LastRes    string   `xml:"last_res,attr"`
+	Ticket     string   `xml:"ticket,attr"`
+	Revision   string   `xml:"revision,attr"`
+	ServerTime string   `xml:"server_time,attr"`
+}
+
+type chat struct {
+	XMLName   xml.Name `xml:"chat"`
+	Text      string   `xml:",chardata"`
+	Thread    string   `xml:"thread,attr"`
+	Vpos      string   `xml:"vpos,attr"`
+	Date      string   `xml:"date,attr"`
+	DateUsec  string   `xml:"date_usec,attr"`
+	Mail      string   `xml:"mail,attr"`
+	UserID    string   `xml:"user_id,attr"`
+	Premium   string   `xml:"premium,attr"`
+	Anonymity string   `xml:"anonymity,attr"`
+	Locale    string   `xml:"locale,attr"`
+	Score     string   `xml:"score,attr"`
+}
+
+type message struct {
+	XMLName xml.Name `xml:"thread"`
+	Thread  string   `xml:"thread,attr"`
+	ResFrom string   `xml:"res_from,attr"`
+	Version string   `xml:"version,attr"`
+	Scores  string   `xml:"scores,attr"`
+}
