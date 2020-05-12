@@ -1,7 +1,13 @@
 package nicolive
 
-import "testing"
+import (
+	"os"
+	"testing"
+)
 
-func Test(t *testing.T) {
-
+func TestLogin(t *testing.T) {
+	_, err := New(os.Getenv("MAIL"), os.Getenv("PASSWORD"))
+	if err != nil {
+		t.Fatal(err)
+	}
 }
