@@ -11,6 +11,12 @@ import (
 	"net/url"
 )
 
+const (
+	resFrom = "-1"
+	version = "20061206"
+	scores  = "1"
+)
+
 type Nicolive struct {
 	client *http.Client
 }
@@ -43,7 +49,6 @@ func New(mail, password string) (*Nicolive, error) {
 }
 
 func printPlayerstatus(g *getplayerstatus) {
-	fmt.Println("Time:", g.Time)
 	fmt.Println("LiveID:", g.Stream.ID)
 	fmt.Println("Title:", g.Stream.Title)
 	fmt.Println("Description:", g.Stream.Description)
@@ -52,19 +57,7 @@ func printPlayerstatus(g *getplayerstatus) {
 	fmt.Println("CommentCount:", g.Stream.CommentCount)
 	fmt.Println("StartTime:", g.Stream.StartTime)
 	fmt.Println("EndTime:", g.Stream.EndTime)
-	fmt.Println("UserID:", g.User.UserID)
-	fmt.Println("Nickname:", g.User.Nickname)
-	fmt.Println("IsPremium:", g.User.IsPremium)
-	fmt.Println("UserAge:", g.User.UserAge)
-	fmt.Println("UserSex:", g.User.UserSex)
-	fmt.Println("UserDomain:", g.User.UserDomain)
-	fmt.Println("UserPrefecture:", g.User.UserPrefecture)
-	fmt.Println("UserLanguage:", g.User.UserLanguage)
 	fmt.Println("RoomLabel:", g.User.RoomLabel)
-	fmt.Println("RoomSeetno:", g.User.RoomSeetno)
-	fmt.Println("Addr:", g.Ms.Addr)
-	fmt.Println("Port:", g.Ms.Port)
-	fmt.Println("Thread:", g.Ms.Thread)
 }
 
 func connect(addr, port string) (net.Conn, error) {
@@ -80,9 +73,9 @@ func connect(addr, port string) (net.Conn, error) {
 func makeMessage(thread string) ([]byte, error) {
 	m := message{
 		Thread:  thread,
-		ResFrom: "-1",
-		Version: "20061206",
-		Scores:  "1",
+		ResFrom: resFrom,
+		Version: version,
+		Scores:  scores,
 	}
 
 	b, err := xml.Marshal(&m)
@@ -94,13 +87,14 @@ func makeMessage(thread string) ([]byte, error) {
 	return b, nil
 }
 
-func (n *Nicolive) Listen(liveID string) error {
+func (n *Nicolive) Listen(liveID string, handler func(c *Chat)) error {
 	g, err := n.getPlayerStatus(liveID)
 	if err != nil {
 		return err
 	}
 
-	printPlayerstatus(g)
+	// process playerstatus?
+	// printPlayerstatus(g)
 
 	conn, err := connect(g.Ms.Addr, g.Ms.Port)
 	if err != nil {
@@ -125,12 +119,12 @@ func (n *Nicolive) Listen(liveID string) error {
 	}
 
 	var t thread
-	var c chat
+	var c Chat
 
 	// Initially, thread and chat are combined.
 	if i := bytes.Index(b, []byte("<chat")); i > 0 {
 		if xml.Unmarshal(b[:i], &t) == nil {
-			println(t.Thread)
+			// process thread?
 		}
 		b = b[i:]
 	}
@@ -141,7 +135,8 @@ func (n *Nicolive) Listen(liveID string) error {
 			return err
 		}
 
-		println(string(b))
+		// println(string(b))
+		handler(&c)
 
 		_, err = conn.Read(b)
 		if err != nil {

@@ -188,7 +188,7 @@ type thread struct {
 	ServerTime string   `xml:"server_time,attr"`
 }
 
-type chat struct {
+type Chat struct {
 	XMLName   xml.Name `xml:"chat"`
 	Text      string   `xml:",chardata"`
 	Thread    string   `xml:"thread,attr"`
