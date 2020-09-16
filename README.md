@@ -1,6 +1,8 @@
 # nicolive
 
-Fetch nicolive chats.
+[![build status](https://github.com/dqn/nicolive/workflows/build/badge.svg)](https://github.com/dqn/nicolive/actions)
+
+Nicolive comments fetcher.
 
 ## Installation
 
@@ -14,20 +16,25 @@ $ go get github.com/dqn/nicolive
 package main
 
 import (
-	"fmt"
+  "fmt"
 
-	"github.com/dqn/nicolive"
+  "github.com/dqn/nicolive"
 )
 
 func main() {
-	n, err := nicolive.New("MAIL", "PASSWORD")
-	if err != nil {
-		// handle error
-	}
+  n, err := nicolive.New("MAIL", "PASSWORD")
+  if err != nil {
+    // Handle error.
+  }
 
-	n.Listen("LIVE_ID", func(c *nicolive.Chat) {
-		fmt.Println(c.Text)
-	})
+  err = n.Listen("LIVE_ID", func(c *nicolive.Chat) error {
+    fmt.Println(c.Text)
+    return nil
+  })
+
+  if err != nil {
+    // Handle error.
+  }
 }
 ```
 
@@ -37,3 +44,7 @@ func main() {
 $ go get github.com/dqn/nicolive/cmd/nicolive
 $ nicolive <mail> <password> <live-id>
 ```
+
+## License
+
+MIT
