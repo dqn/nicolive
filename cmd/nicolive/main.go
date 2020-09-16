@@ -1,27 +1,28 @@
 package main
 
 import (
+	"flag"
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/dqn/nicolive"
 )
 
-func usage() {
-	fmt.Println("Usage:\n  nicolive <mail> <password> <live-id>")
-}
-
 func run() error {
-	if len(os.Args) != 4 {
-		usage()
+	flag.Parse()
+	flag.Usage = func() {
+		fmt.Println("Usage:\n  nicolive <mail> <password> <live-id>")
+	}
+
+	if flag.NArg() != 3 {
+		flag.Usage()
 		os.Exit(2)
 	}
 
 	var (
-		mail     = os.Args[1]
-		password = os.Args[2]
-		liveID   = os.Args[3]
+		mail     = flag.Arg(0)
+		password = flag.Arg(1)
+		liveID   = flag.Arg(2)
 	)
 
 	n, err := nicolive.New(mail, password)
@@ -29,8 +30,9 @@ func run() error {
 		return err
 	}
 
-	n.Listen(liveID, func(c *nicolive.Chat) {
+	n.Listen(liveID, func(c *nicolive.Chat) error {
 		fmt.Println(c.Text)
+		return nil
 	})
 
 	return nil
@@ -39,6 +41,9 @@ func run() error {
 func main() {
 	err := run()
 	if err != nil {
-		log.Fatal(err)
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
 	}
+
+	os.Exit(0)
 }
