@@ -87,7 +87,7 @@ func makeMessage(thread string) ([]byte, error) {
 	return b, nil
 }
 
-func (n *Nicolive) Listen(liveID string, handler func(c *Chat)) error {
+func (n *Nicolive) Listen(liveID string, handler func(c *Chat) error) error {
 	g, err := n.getPlayerStatus(liveID)
 	if err != nil {
 		return err
@@ -136,7 +136,10 @@ func (n *Nicolive) Listen(liveID string, handler func(c *Chat)) error {
 		}
 
 		// println(string(b))
-		handler(&c)
+		err = handler(&c)
+		if err != nil {
+			return err
+		}
 
 		_, err = conn.Read(b)
 		if err != nil {

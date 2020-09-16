@@ -15,8 +15,9 @@ func TestLogin(t *testing.T) {
 
 func TestListen(t *testing.T) {
 	n, _ := New(os.Getenv("MAIL"), os.Getenv("PASSWORD"))
-	err := n.Listen(os.Getenv("LIVE_ID"), func(c *Chat) {
+	err := n.Listen(os.Getenv("LIVE_ID"), func(c *Chat) error {
 		fmt.Println(c.Text)
+		return nil
 	})
 	if err != nil {
 		t.Fatal(err)
