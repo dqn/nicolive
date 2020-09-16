@@ -14,12 +14,17 @@ func TestLogin(t *testing.T) {
 }
 
 func TestListen(t *testing.T) {
+	if os.Getenv("CI") != "" {
+		return
+	}
+
 	n, _ := New(os.Getenv("MAIL"), os.Getenv("PASSWORD"))
 	err := n.Listen(os.Getenv("LIVE_ID"), func(c *Chat) error {
 		fmt.Println(c.Text)
-		return nil
+		return fmt.Errorf("ERROR_FOR_EXIT")
 	})
-	if err != nil {
+
+	if err.Error() != "ERROR_FOR_EXIT" {
 		t.Fatal(err)
 	}
 }
